@@ -36,12 +36,7 @@ server.on('request', (req, res) => {
 
       limitSizeStream.on( 'error', error => {
         // При попытке создания слишком большого файла
-        unlink(filepath, err => {
-          if (err) {
-            console.log('ошибка удаления файла ', err);
-            throw err;
-          }
-          console.log('file was deleted');
+        unlink(filepath, () => {
           res.statusCode = 413;
           res.end(error.code);  
         });
