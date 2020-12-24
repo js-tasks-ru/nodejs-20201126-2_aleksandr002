@@ -31,11 +31,13 @@ server.on('request', (req, res) => {
 
       req.on('error', () => {
         // Если в процессе загрузки файла на сервер произошел обрыв соединения — созданный файл с диска надо удалять
+        writeStream.destroy();
         unlink(filepath, () => {});
       })
 
       limitSizeStream.on( 'error', error => {
         // При попытке создания слишком большого файла
+        writeStream.destroy();
         unlink(filepath, () => {
           res.statusCode = 413;
           res.end(error.code);  
