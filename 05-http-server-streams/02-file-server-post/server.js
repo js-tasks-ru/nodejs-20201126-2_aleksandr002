@@ -29,23 +29,22 @@ server.on('request', (req, res) => {
       .pipe(limitSizeStream)
       .pipe(writeStream);
 
-      req.on('error', () => {
+      req.on('close', () => {
         // Если в процессе загрузки файла на сервер произошел обрыв соединения — созданный файл с диска надо удалять
-        writeStream.destroy();
-        unlink(filepath, () => {});
+        if (!res.finished) {
+          unlink(filepath, () => {});
+        }
       })
 
       limitSizeStream.on( 'error', error => {
         // При попытке создания слишком большого файла
-        writeStream.destroy();
-        unlink(filepath, () => {
-          res.statusCode = 413;
-          res.end(error.code);  
-        });
+        res.statusCode = 413;
+        res.end(error.code);
+        unlink(filepath, () => {});
       });
       
-      writeStream.on('finish', () => {
-        res.statusCode = 200;
+      writeStream.on('close', () => {
+        res.statusCode = 201;
         return res.end('Success');
       });
 
@@ -55,8 +54,6 @@ server.on('request', (req, res) => {
           res.statusCode = 409;
           return res.end('File already exists');  
         }
-        res.statusCode = 500;
-        return res.end('Error');  
       });
 
       break;
