@@ -21,21 +21,19 @@ server.on('request', (req, res) => {
   switch (req.method) {
     case 'DELETE':
 
-      req.once('data', () => {
-        unlink(filepath, (err) => {
-          if (err && err.code === 'ENOENT') {
-            res.statusCode = 404;
-            res.end('File Not found');
-            return;
-          }
-          if ( err ) {
-            res.statusCode = 500;
-            res.end('Error');
-            return;
-          }
-          res.statusCode = 200;
-          res.end('File deleted');
-        });
+      unlink(filepath, (err) => {
+        if (err && err.code === 'ENOENT') {
+          res.statusCode = 404;
+          res.end('File Not found');
+          return;
+        }
+        if ( err ) {
+          res.statusCode = 500;
+          res.end('Error');
+          return;
+        }
+        res.statusCode = 200;
+        res.end('File deleted');
       });
 
       break;
